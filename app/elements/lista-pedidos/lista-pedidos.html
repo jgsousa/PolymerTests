@@ -1,0 +1,74 @@
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icons.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../pedido-compra/pedido-compra.html">
+<link rel="import" href="../../bower_components/paper-material/paper-material.html">
+
+
+<dom-module id="lista-pedidos">
+    <template>
+        <style>
+            .wrapper{
+                margin-bottom: 25px;
+            }
+            #accept {
+                color: green;
+                align-content: center;
+                margin-bottom: 25px;
+            }
+            #reject{
+                color:red;
+                margin-top: 15px;
+            }
+            #accept-icon{
+                width:45px;
+                height:45px;
+            }
+            #reject-icon{
+                width:36px;
+                height:36px;
+            }
+        </style>
+        <iron-ajax
+                id="ajax"
+                last-response="{{data}}"
+                params='{ "$format":"json" , "$expand" : "PurchaseOrderItemSet"}'
+                handle-as="json"
+                on-response="handleResponse">
+        </iron-ajax>
+        <template is="dom-repeat" items="{{data.d.results}}">
+            <paper-material elevation="1" class="wrapper">
+                <div class="horizontal center layout">
+                    <pedido-compra class="flex-11" pedido="{{item.PurchaseOrderID}}"></pedido-compra>
+                    <div class="vertical center layout" style="height:160px">
+                        <paper-button id="accept" class="flex">
+                            <iron-icon id="accept-icon" icon="done"></iron-icon>
+                        </paper-button>
+                        <paper-button id="reject" class="flex">
+                            <iron-icon id="reject-icon" icon="cancel"></iron-icon>
+                        </paper-button>
+                    </div>
+                </div>
+            </paper-material>
+        </template>
+    </template>
+    <script>
+        Polymer({
+            is: 'lista-pedidos',
+            username: 'xxxx',
+            password: 'xxxx',
+            ready: function () {
+                this._setAjaxHeader(this.$.ajax);
+            },
+            _setAjaxHeader: function (ajax) {
+                var headers = {};
+                headers.Authorization = "Basic " + btoa(this.username
+                                + ":" + this.password);
+                ajax.headers = headers;
+                ajax.url = "/sap/opu/odata/sap/ZPOAPPROVAL_SRV/PurchaseOrderSet";
+                ajax.generateRequest();
+            }
+        });
+    </script>
+</dom-module>

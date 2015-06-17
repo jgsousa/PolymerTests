@@ -1,0 +1,64 @@
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+
+<dom-module id="pedido-compra">
+    <style>
+        .header{
+            padding-top: 7px;
+            padding-left: 7px;
+            padding-bottom: 7px;
+            margin:15px;
+        }
+        [item] {
+            @apply(--layout-horizontal);
+            @apply(--layout-flex);
+            @apply(--layout-center);
+            height: 60px;
+            padding-left: 20px;
+            border-top: 1px solid var(--paper-grey-400);
+            margin:10px;
+        }
+    </style>
+    <template>
+        <iron-ajax
+                id="ajaxHeader"
+                last-response="{{data}}"
+                params='{ "$format":"json" , "$expand" : "PurchaseOrderItemSet" }'
+                handle-as="json"
+                on-response="handleResponse">
+        </iron-ajax>
+        <div class="header">
+        <h1>Pedido <b>{{pedido}}</b> - <b>{{data.d.totalValue}}</b> <b>{{data.d.currency}}</b></h1>
+        <template is="dom-repeat" items="{{data.d.PurchaseOrderItemSet.results}}">
+                <div item>
+                    <div class="flex-3"><b>Artigo: </b><span>{{item.material}}</span></div>
+                    <div class="flex"><b>Quantidade: </b> <span>{{item.quantity}}</span></div>
+                    <div class="flex"><b>Valor:</b> <span>{{item.netValue}}</span> <span>{{data.d.currency}}</span></div>
+                </div>
+        </template>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            properties: {
+                is: 'pedido-compra',
+                pedido: "4500000259",
+                username: 'deloitte',
+                password: 'sap123'
+            },
+            ready: function () {
+                this._setAjaxHeader(this.$.ajaxHeader);
+            },
+            _setAjaxHeader: function (ajax) {
+                var headers = {};
+                headers.Authorization = "Basic " + btoa(this.username
+                                + ":" + this.password);
+                ajax.headers = headers;
+                ajax.url = "/sap/opu/odata/sap/ZPOAPPROVAL_SRV/PurchaseOrderSet('" + this.pedido + "')";
+                ajax.generateRequest();
+            }
+        });
+    </script>
+</dom-module>
+
+
